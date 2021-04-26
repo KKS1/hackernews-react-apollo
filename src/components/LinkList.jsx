@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import {useQuery, gql} from '@apollo/client';
 import Link from './Link';
 
 const tempData = [
@@ -15,14 +16,36 @@ const tempData = [
   },
 ];
 
+const FEED_QUERY = gql`
+  {
+    feed {
+      count
+      links {
+        id
+        createdAt
+        description
+        url
+      }
+    }
+  }
+`;
+
+
 export default function LinkList(props) {
-  const linksToRender = tempData;
+  const { loading, error, data } = useQuery(FEED_QUERY);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
 
   return (
     <div>
-      {linksToRender.map(link => (
-        <Link key={link.id} link={link} />
-      ))}
+      {data && (
+        <>
+          {data.feed.links.map(link => (
+            <Link key={link.id} link={link} />
+          ))}
+        </>
+    )}
     </div>
   )
 }
