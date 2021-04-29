@@ -6,7 +6,7 @@ import { AUTH_TOKEN } from "../constants";
 
 const Header = (props) => {
   const history = useHistory();
-  const [authToken, setAuthToken] = useState(localStorage.getItem(AUTH_TOKEN));
+  const authToken = localStorage.getItem(AUTH_TOKEN);
 
   return (
     <div>
@@ -14,23 +14,14 @@ const Header = (props) => {
         {authToken ? (
           <Button
             onClick={(e) => {
-              // localStorage.removeItem(AUTH_TOKEN);
-              setAuthToken(undefined);
+              localStorage.removeItem(AUTH_TOKEN);
               history.push("/");
             }}
           >
             Logout
           </Button>
         ) : (
-          <Button
-            onClick={(e) => {
-              // localStorage.setItem(AUTH_TOKEN, );
-              setAuthToken("abc");
-              history.push("/");
-            }}
-          >
-            Login
-          </Button>
+          <Link to="/login">Login</Link>
         )}
       </Row>
 
