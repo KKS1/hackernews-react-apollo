@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
 import { useMutation, gql } from "@apollo/client";
 import { useHistory } from "react-router";
 import { AUTH_TOKEN } from "../constants";
+import AppContext from "../AppContext";
 
 const SIGNUP_MUTATION = gql`
   mutation SignupMutation($name: String!, $email: String!, $password: String!) {
@@ -44,6 +45,8 @@ const LOGIN_MUTATION = gql`
 
 const Login = (props) => {
   const history = useHistory();
+  const { appState, setAppState } = useContext(AppContext);
+  const { token } = appState;
 
   const [formState, setFormState] = useState({
     login: true,
@@ -58,7 +61,7 @@ const Login = (props) => {
       password: formState.password,
     },
     onCompleted: ({ login }) => {
-      localStorage.setItem(AUTH_TOKEN, login.token);
+      setAppState({ ...appState, token: login.token });
       history.push("/");
     },
   });
@@ -70,7 +73,7 @@ const Login = (props) => {
       password: formState.password,
     },
     onCompleted: ({ signup }) => {
-      localStorage.setItem(AUTH_TOKEN, signup.token);
+      setAppState({ ...appState, token: signup.token });
       history.push("/");
     },
   });

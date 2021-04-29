@@ -1,32 +1,65 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, NavLink } from "react-router-dom";
+import { setContext } from "@apollo/client/link/context";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/index.css";
-import App from "./components/App";
+import App from "./components/App.jsx";
 import reportWebVitals from "./reportWebVitals";
-
 import {
   ApolloProvider,
   ApolloClient,
   createHttpLink,
   InMemoryCache,
 } from "@apollo/client";
+import { AUTH_TOKEN } from "./constants";
+import AppContext from "./AppContext";
 
-const httpLink = createHttpLink({
-  uri: "http://localhost:4000",
-});
+const AppWrapper = (props) => {
+  const [appState, setAppState] = useState({
+    token: localStorage.getItem(AUTH_TOKEN),
+  });
 
-const client = new ApolloClient({
-  link: httpLink,
-  cache: new InMemoryCache(),
-});
+  useEffect(() => {
+    if (appState.token) {
+      localStorage.setItem(AUTH_TOKEN, appState.token);
+    } else {
+      localStorage.removeItem(AUTH_TOKEN);
+    }
+  }, [appState]);
+
+  const httpLink = createHttpLink({
+    uri: "http://localhost:4000",
+  });
+
+  const authLink = setContext((_, { headers }) => {
+    const { token } = appState;
+
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : "",
+      },
+    };
+  });
+
+  const client = new ApolloClient({
+    link: authLink.concat(httpLink),
+    cache: new InMemoryCache(),
+  });
+
+  return (
+    <ApolloProvider client={client}>
+      <AppContext.Provider value={{ appState, setAppState }}>
+        <App />
+      </AppContext.Provider>
+    </ApolloProvider>
+  );
+};
 
 ReactDOM.render(
   <BrowserRouter>
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>
+    <AppWrapper />
   </BrowserRouter>,
   document.getElementById("root")
 );
