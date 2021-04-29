@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
 import { useMutation, gql } from "@apollo/client";
 import { useHistory } from "react-router";
+import { AUTH_TOKEN } from "../constants";
 
 const SIGNUP_MUTATION = gql`
   mutation SignupMutation($name: String!, $email: String!, $password: String!) {
-    login(name: $name, email: $email, password: $password) {
+    signup(name: $name, email: $email, password: $password) {
       token
       user {
         id
@@ -56,7 +57,10 @@ const Login = (props) => {
       email: formState.email,
       password: formState.password,
     },
-    onCompleted: () => history.push("/"),
+    onCompleted: ({ login }) => {
+      localStorage.setItem(AUTH_TOKEN, login.token);
+      history.push("/");
+    },
   });
 
   const [signupAction] = useMutation(SIGNUP_MUTATION, {
@@ -65,7 +69,10 @@ const Login = (props) => {
       email: formState.email,
       password: formState.password,
     },
-    onCompleted: () => history.push("/"),
+    onCompleted: ({ signup }) => {
+      localStorage.setItem(AUTH_TOKEN, signup.token);
+      history.push("/");
+    },
   });
 
   const changeHandler = (field, value) =>
@@ -85,7 +92,7 @@ const Login = (props) => {
       <h4>{formState.login ? "Login" : "Sign Up"}</h4>
 
       <Form onSubmit={submitHandler}>
-        {formState.login && (
+        {!formState.login && (
           <FormGroup>
             <Label for="name_input">Name</Label>
             <Input
