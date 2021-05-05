@@ -15,7 +15,7 @@ const tempData = [
   },
 ];
 
-const FEED_QUERY = gql`
+export const FEED_QUERY = gql`
   {
     feed {
       count

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
 import { useMutation, gql } from "@apollo/client";
 import { useHistory } from "react-router";
+import { FEED_QUERY } from "./LinkList";
+import { LINKS_PER_PAGE } from "../constants";
 
 const CREATE_LINK_MUTATION = gql`
   mutation PostMutation($description: String!, $url: String!) {
@@ -28,6 +30,34 @@ const CreateLink = (props) => {
       description: formState.description,
     },
     onCompleted: () => history.push("/"),
+    update: (cache, { data: { link } }) => {
+      const take = LINKS_PER_PAGE;
+      const skip = 0;
+      const orderBy = { createdAt: "desc" };
+
+      const { feed } = cache.readQuery({
+        query: FEED_QUERY,
+        variables: {
+          take,
+          skip,
+          orderBy,
+        },
+      });
+
+      cache.writeQuery({
+        query: FEED_QUERY,
+        variables: {
+          take,
+          skip,
+          orderBy,
+        },
+        data: {
+          feed: {
+            links: [link, ...feed.links],
+          },
+        },
+      });
+    },
   });
 
   const changeHandler = (field, value) =>
