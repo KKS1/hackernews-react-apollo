@@ -12,6 +12,11 @@ const VOTE_MUTATION = gql`
         id
         description
         url
+        postedBy {
+          id
+          name
+          email
+        }
         votes {
           id
           user {
