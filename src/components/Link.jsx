@@ -1,12 +1,43 @@
 import React, { useContext } from "react";
+import { gql, useMutation } from "@apollo/client";
 import AppContext from "../AppContext";
 import { AUTH_TOKEN, LINKS_PER_PAGE } from "../constants";
 import { timeDifferenceForDate } from "../utils";
+
+const VOTE_MUTATION = gql`
+  mutation VoteMutation($linkId: ID!) {
+    vote(linkId: $linkId) {
+      id
+      link {
+        id
+        description
+        url
+        votes {
+          id
+          user {
+            id
+          }
+        }
+      }
+      user {
+        id
+        name
+        email
+      }
+    }
+  }
+`;
 
 export default function Link(props) {
   const { link } = props;
   const { appState, setAppState } = useContext(AppContext);
   const authToken = appState.token;
+
+  const [vote] = useMutation(VOTE_MUTATION, {
+    variables: {
+      linkId: link.id,
+    },
+  });
 
   const take = LINKS_PER_PAGE;
   const skip = 0;
@@ -20,7 +51,7 @@ export default function Link(props) {
           <div
             className="ml1 gray f11"
             style={{ cursor: "pointer" }}
-            // onClick={vote}
+            onClick={vote}
           >
             ▲
           </div>
