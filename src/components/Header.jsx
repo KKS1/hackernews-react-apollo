@@ -32,6 +32,10 @@ const Header = (props) => {
           <NavLink href="/">Feed Links List</NavLink>
         </NavItem>
 
+        <NavItem>
+          <NavLink href="/search">Search</NavLink>
+        </NavItem>
+
         {token && (
           <NavItem>
             <NavLink href="/create">Create New Link</NavLink>
