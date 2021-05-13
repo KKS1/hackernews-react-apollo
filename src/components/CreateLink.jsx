@@ -35,28 +35,36 @@ const CreateLink = (props) => {
       const skip = 0;
       const orderBy = { createdAt: "desc" };
 
-      const { feed } = cache.readQuery({
-        query: FEED_QUERY,
-        variables: {
-          take,
-          skip,
-          orderBy,
-        },
-      });
+      // const cacheQueryResult = cache.readQuery({
+      //   query: FEED_QUERY,
+      //   variables: {
+      //     take,
+      //     skip,
+      //     orderBy,
+      //   },
+      // });
 
-      cache.writeQuery({
-        query: FEED_QUERY,
-        variables: {
-          take,
-          skip,
-          orderBy,
-        },
-        data: {
-          feed: {
-            links: [link, ...feed.links],
-          },
-        },
-      });
+      // let feed = {
+      //   links: [],
+      // };
+
+      // if (cacheQueryResult) {
+      //   feed = cacheQueryResult.feed;
+      // }
+
+      // cache.writeQuery({
+      //   query: FEED_QUERY,
+      //   variables: {
+      //     take,
+      //     skip,
+      //     orderBy,
+      //   },
+      //   data: {
+      //     feed: {
+      //       links: [link, ...feed.links],
+      //     },
+      //   },
+      // });
     },
   });
 

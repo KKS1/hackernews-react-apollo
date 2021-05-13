@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import logo from "./../logo.svg";
 import "./../styles/App.css";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import CreateLink from "./CreateLink";
 import LinkList from "./LinkList";
 import Header from "./Header";
@@ -19,10 +19,11 @@ function App() {
       <h1>React Apollo GraphQL (Full Stack)</h1>
       <Header />
       <Switch>
-        <Route exact path="/" component={LinkList} />
+        <Route exact path="/" render={() => <Redirect to="/new/1" /> } />
         <Route exact path="/create" component={CreateLink} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/search" component={Search} />
+        <Route exact path="/new/:page" component={LinkList} />
       </Switch>
     </div>
   );
