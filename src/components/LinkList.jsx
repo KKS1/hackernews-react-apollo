@@ -5,8 +5,8 @@ import { useHistory } from "react-router";
 import { LINKS_PER_PAGE } from "../constants";
 
 export const FEED_QUERY = gql`
-  {
-    feed {
+  query FeedQuery($take: Int, $skip: Int, $orderBy: LinkOrderByInput) {
+    feed(take: $take, skip: $skip, orderBy: $orderBy) {
       count
       links {
         id
@@ -49,6 +49,33 @@ const NEW_LINKS_SUBSCRIPTION = gql`
   }
 `;
 
+const NEW_VOTES_SUBSCRIPTION = gql`
+  subscription {
+    newVote {
+      id
+      link {
+        id
+        url
+        description
+        createdAt
+        postedBy {
+          id
+          name
+        }
+        votes {
+          id
+          user {
+            id
+          }
+        }
+      }
+      user {
+        id
+      }
+    }
+  }
+`;
+
 const getQueryVariables = (isNewPage, page) => {
   const skip = isNewPage ? (page - 1) * LINKS_PER_PAGE : 0;
   const take = isNewPage ? LINKS_PER_PAGE : 100;
@@ -85,6 +112,10 @@ export default function LinkList(props) {
         },
       });
     },
+  });
+
+  subscribeToMore({
+    document: NEW_VOTES_SUBSCRIPTION,
   });
 
   if (loading) return <p>Loading...</p>;

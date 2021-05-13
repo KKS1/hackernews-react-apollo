@@ -29,7 +29,11 @@ const Header = (props) => {
 
       <Nav tabs>
         <NavItem>
-          <NavLink href="/">Feed Links List</NavLink>
+          <NavLink href="/">New</NavLink>
+        </NavItem>
+
+        <NavItem>
+          <NavLink href="/top">Top</NavLink>
         </NavItem>
 
         <NavItem>
