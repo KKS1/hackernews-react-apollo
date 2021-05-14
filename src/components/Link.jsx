@@ -43,10 +43,19 @@ export default function Link(props) {
     variables: {
       linkId: link.id,
     },
-    update(cache, { data: { vote } }) {
-      const { feed } = cache.readQuery({
+    update: (cache, { data: { vote } }) => {
+      const cacheQueryResult = cache.readQuery({
         query: FEED_QUERY,
       });
+
+      let feed = {
+        links: [],
+      };
+
+      if (cacheQueryResult) {
+        feed = cacheQueryResult.feed;
+      }
+
       const updatedLinks = feed.links.map((feedLink) => {
         if (feedLink.id === link.id) {
           return {
