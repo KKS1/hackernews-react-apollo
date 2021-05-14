@@ -110,6 +110,16 @@ const Footer = ({ page, maxPages }) => {
   );
 };
 
+const getLinksToRender = (isNewPage, data) => {
+  if (isNewPage) {
+    return data.feed.links;
+  }
+  const rankedLists = [...data.feed.links].sort(
+    (l1, l2) => l2.votes.length - l1.votes.length
+  );
+  return rankedLists;
+};
+
 export default function LinkList(props) {
   const history = useHistory();
   const pathName = history.location.pathname;
@@ -150,12 +160,14 @@ export default function LinkList(props) {
 
   const maxPages = Math.ceil(data.feed.count / LINKS_PER_PAGE);
 
+  const linksToRender = getLinksToRender(isNewPage, data);
+
   return (
     <div>
       {data && (
         <>
           <div>
-            {data.feed.links.map((link, index) => (
+            {linksToRender.map((link, index) => (
               <Link key={link.id} link={link} index={index} />
             ))}
           </div>
