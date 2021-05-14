@@ -2,6 +2,7 @@ import React from "react";
 import { useQuery, gql } from "@apollo/client";
 import Link from "./Link";
 import { useHistory } from "react-router";
+import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { LINKS_PER_PAGE } from "../constants";
 
 export const FEED_QUERY = gql`
@@ -83,6 +84,32 @@ const getQueryVariables = (isNewPage, page) => {
   return { take, skip, orderBy };
 };
 
+const Footer = ({ page, maxPages }) => {
+  return (
+    <Pagination aria-label="Feed Links Pagination">
+      {page > 1 && (
+        <PaginationItem>
+          <PaginationLink previous href={`/new/${page - 1}`} />
+        </PaginationItem>
+      )}
+
+      {new Array(maxPages).fill(1).map((val, index) => (
+        <PaginationItem>
+          <PaginationLink href={`/new/${index + 1}`}>
+            {index + 1}
+          </PaginationLink>
+        </PaginationItem>
+      ))}
+
+      {page < maxPages && (
+        <PaginationItem>
+          <PaginationLink next href={`/new/${page + 1}`} />
+        </PaginationItem>
+      )}
+    </Pagination>
+  );
+};
+
 export default function LinkList(props) {
   const history = useHistory();
   const pathName = history.location.pathname;
@@ -121,13 +148,20 @@ export default function LinkList(props) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
 
+  const maxPages = Math.ceil(data.feed.count / LINKS_PER_PAGE);
+
   return (
     <div>
       {data && (
         <>
-          {data.feed.links.map((link, index) => (
-            <Link key={link.id} link={link} index={index} />
-          ))}
+          <div>
+            {data.feed.links.map((link, index) => (
+              <Link key={link.id} link={link} index={index} />
+            ))}
+          </div>
+          <div>
+            <Footer page={page} maxPages={maxPages} />
+          </div>
         </>
       )}
     </div>
