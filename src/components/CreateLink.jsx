@@ -30,41 +30,43 @@ const CreateLink = (props) => {
       description: formState.description,
     },
     onCompleted: () => history.push("/"),
-    update: (cache, { data: { link } }) => {
+    update: (cache, { data }) => {
       const take = LINKS_PER_PAGE;
       const skip = 0;
       const orderBy = { createdAt: "desc" };
 
-      // const cacheQueryResult = cache.readQuery({
-      //   query: FEED_QUERY,
-      //   variables: {
-      //     take,
-      //     skip,
-      //     orderBy,
-      //   },
-      // });
+      const link = data.post;
 
-      // let feed = {
-      //   links: [],
-      // };
+      const cacheQueryResult = cache.readQuery({
+        query: FEED_QUERY,
+        variables: {
+          take,
+          skip,
+          orderBy,
+        },
+      });
 
-      // if (cacheQueryResult) {
-      //   feed = cacheQueryResult.feed;
-      // }
+      let feed = {
+        links: [],
+      };
 
-      // cache.writeQuery({
-      //   query: FEED_QUERY,
-      //   variables: {
-      //     take,
-      //     skip,
-      //     orderBy,
-      //   },
-      //   data: {
-      //     feed: {
-      //       links: [link, ...feed.links],
-      //     },
-      //   },
-      // });
+      if (cacheQueryResult) {
+        feed = cacheQueryResult.feed;
+      }
+
+      cache.writeQuery({
+        query: FEED_QUERY,
+        variables: {
+          take,
+          skip,
+          orderBy,
+        },
+        data: {
+          feed: {
+            links: [link, ...feed.links],
+          },
+        },
+      });
     },
   });
 

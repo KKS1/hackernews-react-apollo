@@ -94,7 +94,7 @@ const Footer = ({ page, maxPages }) => {
       )}
 
       {new Array(maxPages).fill(1).map((val, index) => (
-        <PaginationItem>
+        <PaginationItem key={index}>
           <PaginationLink href={`/new/${index + 1}`}>
             {index + 1}
           </PaginationLink>
