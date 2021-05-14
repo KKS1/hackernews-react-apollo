@@ -44,8 +44,17 @@ export default function Link(props) {
       linkId: link.id,
     },
     update: (cache, { data: { vote } }) => {
+      const take = LINKS_PER_PAGE;
+      const skip = 0;
+      const orderBy = { createdAt: "desc" };
+
       const cacheQueryResult = cache.readQuery({
         query: FEED_QUERY,
+        variables: {
+          take,
+          skip,
+          orderBy,
+        },
       });
 
       let feed = {
@@ -67,6 +76,11 @@ export default function Link(props) {
       });
       cache.writeQuery({
         query: FEED_QUERY,
+        variables: {
+          take,
+          skip,
+          orderBy,
+        },
         data: {
           feed: {
             links: updatedLinks,
@@ -75,10 +89,6 @@ export default function Link(props) {
       });
     },
   });
-
-  const take = LINKS_PER_PAGE;
-  const skip = 0;
-  const orderBy = { createdAt: "desc" };
 
   return (
     <div className="flex mt2 items-start">
