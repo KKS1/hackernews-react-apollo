@@ -24,17 +24,28 @@ const CreateLink = (props) => {
     url: "",
   });
 
+  const take = LINKS_PER_PAGE, 
+    skip = 0, 
+    orderBy = { createdAt: "desc" };
+
   const [createLink] = useMutation(CREATE_LINK_MUTATION, {
     variables: {
       url: formState.url,
       description: formState.description,
     },
+    // TODO: See refetching vs subscription based cache updating
+    // refetchQueries: [
+    //   {
+    //     query: FEED_QUERY,
+    //     variables: {
+    //       take,
+    //       skip,
+    //       orderBy,
+    //     }
+    //   }
+    // ],
     onCompleted: () => history.push("/"),
     update: (cache, { data }) => {
-      const take = LINKS_PER_PAGE;
-      const skip = 0;
-      const orderBy = { createdAt: "desc" };
-
       const link = data.post;
 
       const cacheQueryResult = cache.readQuery({
