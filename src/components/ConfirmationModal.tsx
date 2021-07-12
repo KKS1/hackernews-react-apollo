@@ -1,7 +1,14 @@
 import React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
-export default function ConfirmationModal(props) {
+interface ModalProps {
+  className?: string;
+  isOpen: boolean;
+  title?: string;
+  onClose: (e?: object, proceed?: boolean) => void;
+}
+
+export default function ConfirmationModal(props: ModalProps) {
   const {
     className,
     isOpen = false,

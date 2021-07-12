@@ -6,8 +6,34 @@ import { timeDifferenceForDate } from '../utils';
 import { FEED_QUERY } from './LinkList';
 import { Button } from 'reactstrap';
 import styled from 'styled-components';
-import ConfirmationModal from '../components/ConfirmationModal';
+import ConfirmationModal from './ConfirmationModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+export interface LINK_INTERFACE {
+  id?: string,
+  createdAt?: string,
+  description?: string,
+  url?: string,
+  postedBy?: {
+    id?: string,
+    name?: string,
+  },
+  votes?: [{
+    id?: string,
+    user?: {
+      id?: string,
+    }
+  }]
+}
+
+export interface FEED_INTERFACE {
+  count?: string,
+  links?: [LINK_INTERFACE],
+};
+
+export interface FEED_RESULT_INTERFACE {
+  feed: FEED_INTERFACE,
+}
 
 const StyledLinkSubSection = styled.div`
   display: grid;
@@ -56,7 +82,7 @@ const DELETE_LINK_MUTATION = gql`
   }
 `;
 
-export default function Link(props) {
+export default function Link(props: any) {
   const { link } = props;
   const { appState, setAppState } = useContext(AppContext);
   const authToken = appState.token;
@@ -72,7 +98,7 @@ export default function Link(props) {
       const skip = 0;
       const orderBy = { createdAt: 'desc' };
 
-      const cacheQueryResult = cache.readQuery({
+      const cacheQueryResult = cache.readQuery<FEED_RESULT_INTERFACE>({
         query: FEED_QUERY,
         variables: {
           take,
@@ -81,16 +107,14 @@ export default function Link(props) {
         },
       });
 
-      let feed = {
-        links: [],
-      };
+      let feed: FEED_INTERFACE | undefined = cacheQueryResult?.feed;
 
-      if (cacheQueryResult) {
-        feed = cacheQueryResult.feed;
+      if (!feed) {
+        return
       }
 
-      const updatedLinks = feed.links.map((feedLink) => {
-        if (feedLink.id === link.id) {
+      const updatedLinks = feed?.links?.map((feedLink) => {
+        if (feedLink.id === link.id && feedLink?.votes instanceof Array) {
           return {
             ...feedLink,
             votes: [...feedLink.votes, vote],
@@ -122,11 +146,12 @@ export default function Link(props) {
       id: link.id,
     },
     update: (cache, { data: { deleteLink } }) => {
-      cache.evict(cache.identify(deleteLink));
+      const deletedLinkId = cache.identify(deleteLink);
+      cache.evict({id: deletedLinkId});
     },
   });
 
-  const deleteLinkHandler = (e, proceed = false) => {
+  const deleteLinkHandler = (e: object | undefined, proceed = false) => {
     setDeletePrompt(false);
 
     if (proceed) {
@@ -142,7 +167,7 @@ export default function Link(props) {
           <div
             className="ml1 gray f11"
             style={{ cursor: 'pointer' }}
-            onClick={vote}
+            onClick={e => vote()}
           >
             ▲
           </div>
