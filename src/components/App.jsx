@@ -8,6 +8,7 @@ import Header from "./Header";
 import Login from "./Login";
 import AppContext from "../AppContext";
 import Search from "./Search";
+import "../fontawesome";
 
 function App() {
   const {

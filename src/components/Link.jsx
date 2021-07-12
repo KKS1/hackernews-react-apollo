@@ -1,9 +1,20 @@
-import React, { useContext } from "react";
-import { gql, useMutation } from "@apollo/client";
-import AppContext from "../AppContext";
-import { AUTH_TOKEN, LINKS_PER_PAGE } from "../constants";
-import { timeDifferenceForDate } from "../utils";
-import { FEED_QUERY } from "./LinkList";
+import React, { useContext, useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
+import AppContext from '../AppContext';
+import { AUTH_TOKEN, LINKS_PER_PAGE } from '../constants';
+import { timeDifferenceForDate } from '../utils';
+import { FEED_QUERY } from './LinkList';
+import { Button } from 'reactstrap';
+import styled from 'styled-components';
+import ConfirmationModal from '../components/ConfirmationModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+const StyledLinkSubSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+  align-items: center;
+`;
 
 const VOTE_MUTATION = gql`
   mutation VoteMutation($linkId: ID!) {
@@ -34,10 +45,23 @@ const VOTE_MUTATION = gql`
   }
 `;
 
+const DELETE_LINK_MUTATION = gql`
+  mutation DELETE_LINK($id: ID!) {
+    deleteLink(id: $id) {
+      id
+      description
+      url
+      createdAt
+    }
+  }
+`;
+
 export default function Link(props) {
   const { link } = props;
   const { appState, setAppState } = useContext(AppContext);
   const authToken = appState.token;
+
+  const [deletePrompt, setDeletePrompt] = useState(false);
 
   const [vote] = useMutation(VOTE_MUTATION, {
     variables: {
@@ -46,7 +70,7 @@ export default function Link(props) {
     update: (cache, { data: { vote } }) => {
       const take = LINKS_PER_PAGE;
       const skip = 0;
-      const orderBy = { createdAt: "desc" };
+      const orderBy = { createdAt: 'desc' };
 
       const cacheQueryResult = cache.readQuery({
         query: FEED_QUERY,
@@ -90,6 +114,26 @@ export default function Link(props) {
     },
   });
 
+  const [
+    deleteLink,
+    { loading: deleting, error: deleteError, data: deletedLink },
+  ] = useMutation(DELETE_LINK_MUTATION, {
+    variables: {
+      id: link.id,
+    },
+    update: (cache, { data: { deleteLink } }) => {
+      cache.evict(cache.identify(deleteLink));
+    },
+  });
+
+  const deleteLinkHandler = (e, proceed = false) => {
+    setDeletePrompt(false);
+
+    if (proceed) {
+      deleteLink().catch((err) => alert(err.message));
+    }
+  };
+
   return (
     <div className="flex mt2 items-start">
       <div className="flex items-center">
@@ -97,7 +141,7 @@ export default function Link(props) {
         {authToken && (
           <div
             className="ml1 gray f11"
-            style={{ cursor: "pointer" }}
+            style={{ cursor: 'pointer' }}
             onClick={vote}
           >
             ▲
@@ -109,13 +153,32 @@ export default function Link(props) {
           {link.description} ({link.url})
         </div>
         {authToken && (
-          <div className="f6 lh-copy gray">
-            {link.votes.length} votes | by{" "}
-            {link.postedBy ? link.postedBy.name : "Unknown"}{" "}
-            {timeDifferenceForDate(link.createdAt)}
-          </div>
+          <StyledLinkSubSection>
+            <div className="f6 lh-copy gray">
+              {link.votes.length} votes | by{' '}
+              {link.postedBy ? link.postedBy.name : 'Unknown'}{' '}
+              {timeDifferenceForDate(link.createdAt)}
+            </div>
+            <div>
+              <Button
+                outline
+                color="link"
+                size="sm"
+                title="Delete Link"
+                onClick={(e) => setDeletePrompt(true)}
+              >
+                <FontAwesomeIcon
+                  icon="trash"
+                  aria-label="Delete Link"
+                  title="Delete Link"
+                />
+              </Button>
+            </div>
+          </StyledLinkSubSection>
         )}
       </div>
+
+      <ConfirmationModal isOpen={deletePrompt} onClose={deleteLinkHandler} />
     </div>
   );
 }
