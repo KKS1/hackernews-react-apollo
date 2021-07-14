@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
+import { useHistory } from 'react-router';
 import AppContext from '../AppContext';
 import { AUTH_TOKEN, LINKS_PER_PAGE } from '../constants';
 import { timeDifferenceForDate } from '../utils';
@@ -10,29 +11,31 @@ import ConfirmationModal from './ConfirmationModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export interface LINK_INTERFACE {
-  id?: string,
-  createdAt?: string,
-  description?: string,
-  url?: string,
+  id?: string;
+  createdAt?: string;
+  description?: string;
+  url?: string;
   postedBy?: {
-    id?: string,
-    name?: string,
-  },
-  votes?: [{
-    id?: string,
-    user?: {
-      id?: string,
+    id?: string;
+    name?: string;
+  };
+  votes?: [
+    {
+      id?: string;
+      user?: {
+        id?: string;
+      };
     }
-  }]
+  ];
 }
 
 export interface FEED_INTERFACE {
-  count?: string,
-  links?: [LINK_INTERFACE],
-};
+  count?: string;
+  links?: [LINK_INTERFACE];
+}
 
 export interface FEED_RESULT_INTERFACE {
-  feed: FEED_INTERFACE,
+  feed: FEED_INTERFACE;
 }
 
 const StyledLinkSubSection = styled.div`
@@ -86,6 +89,7 @@ export default function Link(props: any) {
   const { link } = props;
   const { appState, setAppState } = useContext(AppContext);
   const authToken = appState.token;
+  const history = useHistory();
 
   const [deletePrompt, setDeletePrompt] = useState(false);
 
@@ -110,7 +114,7 @@ export default function Link(props: any) {
       let feed: FEED_INTERFACE | undefined = cacheQueryResult?.feed;
 
       if (!feed) {
-        return
+        return;
       }
 
       const updatedLinks = feed?.links?.map((feedLink) => {
@@ -147,7 +151,8 @@ export default function Link(props: any) {
     },
     update: (cache, { data: { deleteLink } }) => {
       const deletedLinkId = cache.identify(deleteLink);
-      cache.evict({id: deletedLinkId});
+      cache.evict({ id: deletedLinkId });
+      history.go(0); // window.location.reload() // also does the same
     },
   });
 
@@ -167,7 +172,7 @@ export default function Link(props: any) {
           <div
             className="ml1 gray f11"
             style={{ cursor: 'pointer' }}
-            onClick={e => vote()}
+            onClick={(e) => vote()}
           >
             ▲
           </div>
