@@ -86,7 +86,7 @@ const DELETE_LINK_MUTATION = gql`
 `;
 
 export default function Link(props: any) {
-  const { link } = props;
+  const { link, onDelete = () => {} } = props;
   const { appState, setAppState } = useContext(AppContext);
   const authToken = appState.token;
   const history = useHistory();
@@ -152,7 +152,8 @@ export default function Link(props: any) {
     update: (cache, { data: { deleteLink } }) => {
       const deletedLinkId = cache.identify(deleteLink);
       cache.evict({ id: deletedLinkId });
-      history.go(0); // window.location.reload() // also does the same
+      onDelete(deleteLink);
+      // history.go(0); // window.location.reload() // also does the same
     },
   });
 

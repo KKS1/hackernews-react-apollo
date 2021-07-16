@@ -129,7 +129,7 @@ export default function LinkList(props) {
 
   const pageIndex = page ? (page - 1) * LINKS_PER_PAGE : 0;
 
-  const { loading, error, data, subscribeToMore } = useQuery(FEED_QUERY, {
+  const { loading, error, data, subscribeToMore, refetch } = useQuery(FEED_QUERY, {
     variables: getQueryVariables(isNewPage, page),
   });
 
@@ -168,7 +168,7 @@ export default function LinkList(props) {
         <>
           <div>
             {linksToRender.map((link, index) => (
-              <Link key={link.id} link={link} index={index} />
+              <Link key={link.id} link={link} index={index} onDelete={(deletedLink) => refetch() } />
             ))}
           </div>
           <div>
