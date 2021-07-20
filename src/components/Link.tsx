@@ -9,6 +9,8 @@ import { Button } from 'reactstrap';
 import styled from 'styled-components';
 import ConfirmationModal from './ConfirmationModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {avatarVar} from '../cache';
+import {appState} from '../utils/appState';
 
 export interface LINK_INTERFACE {
   id?: string;
@@ -87,8 +89,8 @@ const DELETE_LINK_MUTATION = gql`
 
 export default function Link(props: any) {
   const { link, onDelete = () => {} } = props;
-  const { appState, setAppState } = useContext(AppContext);
-  const authToken = appState.token;
+  const { appState: appContextState, setAppState } = useContext(AppContext);
+  const authToken = appContextState.token;
   const history = useHistory();
 
   const [deletePrompt, setDeletePrompt] = useState(false);
@@ -159,10 +161,20 @@ export default function Link(props: any) {
 
   const deleteLinkHandler = (e: object | undefined, proceed = false) => {
     setDeletePrompt(false);
+    
+    avatarVar('');
+
+    appState({...appState(), someInfo: ''});
 
     if (proceed) {
       deleteLink().catch((err) => alert(err.message));
     }
+  };
+
+  const onDeleteClick = (e: React.SyntheticEvent) => {
+    setDeletePrompt(true); 
+    avatarVar('in trouble.....');
+    appState({...appState(), someInfo: 'someone is thinking of deleting a link....'});
   };
 
   return (
@@ -183,6 +195,9 @@ export default function Link(props: any) {
         <div>
           {link.description} ({link.url})
         </div>
+        <div>
+          {link.avatar}
+        </div>
         {authToken && (
           <StyledLinkSubSection>
             <div className="f6 lh-copy gray">
@@ -196,7 +211,7 @@ export default function Link(props: any) {
                 color="link"
                 size="sm"
                 title="Delete Link"
-                onClick={(e) => setDeletePrompt(true)}
+                onClick={onDeleteClick}
               >
                 <FontAwesomeIcon
                   icon="trash"

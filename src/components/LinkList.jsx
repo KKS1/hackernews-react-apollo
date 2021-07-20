@@ -4,6 +4,8 @@ import Link from "./Link";
 import { useHistory } from "react-router";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { LINKS_PER_PAGE } from "../constants";
+import {avatarVar} from '../cache';
+import {appState} from '../utils/appState';
 
 export const FEED_QUERY = gql`
   query FeedQuery($take: Int, $skip: Int, $orderBy: LinkOrderByInput) {
@@ -24,8 +26,15 @@ export const FEED_QUERY = gql`
             id
           }
         }
+        avatar @client
       }
     }
+  }
+`;
+
+export const GET_REACTIVE_VARIABLE = gql`
+  query getReactiveVariable {
+    someField @client
   }
 `;
 
@@ -112,9 +121,9 @@ const Footer = ({ page, maxPages }) => {
 
 const getLinksToRender = (isNewPage, data) => {
   if (isNewPage) {
-    return data.feed.links;
+    return data?.feed?.links;
   }
-  const rankedLists = [...data.feed.links].sort(
+  const rankedLists = [...data?.feed?.links].sort(
     (l1, l2) => l2.votes.length - l1.votes.length
   );
   return rankedLists;
@@ -132,6 +141,15 @@ export default function LinkList(props) {
   const { loading, error, data, subscribeToMore, refetch } = useQuery(FEED_QUERY, {
     variables: getQueryVariables(isNewPage, page),
   });
+
+  // To showcase, how reactive variables can be retrieved via a generic Query typePolicy in cache
+  const {data: reactiveData, error: reactiveError, loading: reactiveLoading} = useQuery(GET_REACTIVE_VARIABLE);
+  console.log({reactiveData, reactiveError, reactiveLoading})
+
+  // To showecase how reactive variables can be directly used like Context API state
+  console.log({avatarVar: avatarVar()})
+
+  console.log({appState: appState()})
 
   subscribeToMore({
     document: NEW_LINKS_SUBSCRIPTION,
@@ -158,7 +176,7 @@ export default function LinkList(props) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
 
-  const maxPages = Math.ceil(data.feed.count / LINKS_PER_PAGE);
+  const maxPages = Math.ceil(data?.feed?.count / LINKS_PER_PAGE);
 
   const linksToRender = getLinksToRender(isNewPage, data);
 

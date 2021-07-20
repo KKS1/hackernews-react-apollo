@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
-import { BrowserRouter, NavLink } from "react-router-dom";
-import { setContext } from "@apollo/client/link/context";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./styles/index.css";
-import App from "./components/App.jsx";
-import reportWebVitals from "./reportWebVitals";
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter, NavLink } from 'react-router-dom';
+import { setContext } from '@apollo/client/link/context';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles/index.css';
+import App from './components/App.jsx';
+import reportWebVitals from './reportWebVitals';
 import {
   ApolloProvider,
   ApolloClient,
   createHttpLink,
   InMemoryCache,
   split,
-} from "@apollo/client";
+} from '@apollo/client';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { AUTH_TOKEN } from "./constants";
-import AppContext from "./AppContext";
+import { AUTH_TOKEN } from './constants';
+import AppContext from './AppContext';
+import { avatarVar } from './cache';
 
 const AppWrapper = (props) => {
   const [appState, setAppState] = useState({
@@ -32,7 +33,7 @@ const AppWrapper = (props) => {
   }, [appState]);
 
   const httpLink = createHttpLink({
-    uri: "http://localhost:4000",
+    uri: 'http://localhost:4000',
   });
 
   const authLink = setContext((_, { headers }) => {
@@ -41,7 +42,7 @@ const AppWrapper = (props) => {
     return {
       headers: {
         ...headers,
-        authorization: token ? `Bearer ${token}` : "",
+        authorization: token ? `Bearer ${token}` : '',
       },
     };
   });
@@ -53,16 +54,13 @@ const AppWrapper = (props) => {
       connectionParams: {
         authToken: appState.token,
       },
-    }
+    },
   });
 
   const link = split(
     ({ query }) => {
       const { kind, operation } = getMainDefinition(query);
-      return (
-        kind === 'OperationDefinition' &&
-        operation === 'subscription'
-      );
+      return kind === 'OperationDefinition' && operation === 'subscription';
     },
     wsLink,
     authLink.concat(httpLink)
@@ -70,7 +68,28 @@ const AppWrapper = (props) => {
 
   const client = new ApolloClient({
     link: link,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Link: {
+          fields: {
+            avatar: {
+              read(_, { variables }) {
+                return avatarVar();
+              },
+            },
+          },
+        },
+        Query: {
+          fields: {
+            someField: {
+              read() {
+                return 'something';
+              },
+            },
+          },
+        },
+      },
+    }),
   });
 
   return (
@@ -86,7 +105,7 @@ ReactDOM.render(
   <BrowserRouter>
     <AppWrapper />
   </BrowserRouter>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function
