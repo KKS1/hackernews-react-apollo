@@ -1,5 +1,5 @@
 import React from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, gql, useReactiveVar } from "@apollo/client";
 import Link from "./Link";
 import { useHistory } from "react-router";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
@@ -130,6 +130,7 @@ const getLinksToRender = (isNewPage, data) => {
 };
 
 export default function LinkList(props) {
+  const avatar = useReactiveVar(avatarVar);
   const history = useHistory();
   const pathName = history.location.pathname;
   const isNewPage = pathName.includes("new");
@@ -147,7 +148,7 @@ export default function LinkList(props) {
   console.log({reactiveData, reactiveError, reactiveLoading})
 
   // To showecase how reactive variables can be directly used like Context API state
-  console.log({avatarVar: avatarVar()})
+  console.log({avatar})
 
   console.log({appState: appState()})
 
