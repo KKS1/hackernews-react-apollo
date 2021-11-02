@@ -29,20 +29,20 @@ const Header = (props) => {
 
       <Nav tabs>
         <NavItem>
-          <NavLink href="/">New</NavLink>
+          <NavLink tag={Link} to="/">New</NavLink>
         </NavItem>
 
         <NavItem>
-          <NavLink href="/top">Top</NavLink>
+          <NavLink tag={Link} to="/top">Top</NavLink>
         </NavItem>
 
         <NavItem>
-          <NavLink href="/search">Search</NavLink>
+          <NavLink tag={Link} to="/search">Search</NavLink>
         </NavItem>
 
         {token && (
           <NavItem>
-            <NavLink href="/create">Create New Link</NavLink>
+            <NavLink tag={Link} to="/create">Create New Link</NavLink>
           </NavItem>
         )}
       </Nav>
