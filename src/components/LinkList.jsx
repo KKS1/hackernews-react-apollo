@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery, gql, useReactiveVar } from "@apollo/client";
 import Link from "./Link";
+import {Link as RouterLink } from 'react-router-dom'
 import { useHistory } from "react-router";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { LINKS_PER_PAGE } from "../constants";
@@ -98,13 +99,13 @@ const Footer = ({ page, maxPages }) => {
     <Pagination aria-label="Feed Links Pagination">
       {page > 1 && (
         <PaginationItem>
-          <PaginationLink previous href={`/new/${page - 1}`} />
+          <PaginationLink previous tag={RouterLink} to={`/new/${page - 1}`} />
         </PaginationItem>
       )}
 
       {new Array(maxPages).fill(1).map((val, index) => (
         <PaginationItem key={index}>
-          <PaginationLink href={`/new/${index + 1}`}>
+          <PaginationLink tag={RouterLink} to={`/new/${index + 1}`}>
             {index + 1}
           </PaginationLink>
         </PaginationItem>
@@ -112,7 +113,7 @@ const Footer = ({ page, maxPages }) => {
 
       {page < maxPages && (
         <PaginationItem>
-          <PaginationLink next href={`/new/${page + 1}`} />
+          <PaginationLink next tag={RouterLink} to={`/new/${page + 1}`} />
         </PaginationItem>
       )}
     </Pagination>
