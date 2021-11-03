@@ -1,10 +1,12 @@
 import React, { createContext } from "react";
 
+export interface appStateInterface {
+  token?: string,
+};
+
 export type AppContextType = {
-  appState: {
-    token?: string,
-  },
-  setAppState: (appState: object) => void,
+  appState: appStateInterface,
+  setAppState: (appState: appStateInterface) => void,
 }
 
 const AppContext = createContext<AppContextType>({
